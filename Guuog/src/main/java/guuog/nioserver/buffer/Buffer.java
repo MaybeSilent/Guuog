@@ -1,4 +1,4 @@
-package guuog.nioserver.processor;
+package guuog.nioserver.buffer;
 
 public class Buffer {
     private byte[] pool;

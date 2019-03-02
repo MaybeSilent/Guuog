@@ -1,10 +1,10 @@
-package guuog.nioserver.processor;
+package guuog.nioserver.buffer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
-import guuog.nioserver.processor.BufferPool.ResizeArray;
+import guuog.nioserver.buffer.BufferPool.ResizeArray;
 
 public class ResizeArrayTest{
     private  ResizeArray testArray;

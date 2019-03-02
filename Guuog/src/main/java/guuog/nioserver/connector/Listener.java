@@ -1,7 +1,7 @@
 
 package guuog.nioserver.connector;
 
-import guuog.nioserver.processor.Buffer;
+import guuog.nioserver.buffer.Buffer;
 
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
