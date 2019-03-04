@@ -1,15 +1,47 @@
 
 package guuog.nioserver.connector;
 
-import guuog.nioserver.buffer.Buffer;
-
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 
-public class Listener {
+import guuog.nioserver.buffer.BufferChannel;
 
-    private SocketChannel socketChannel;
-    private int TcpPort;
-    private LinkedList<Buffer> BufferQueue;
+public class Listener implements Runnable {
 
+    private ServerSocketChannel socketServer;
+    private int tcpPort;
+    private LinkedList<BufferChannel> bufferQueue;
+
+    public void Listener(int tcpPort , LinkedList bufferQueue){
+        this.tcpPort = tcpPort;
+        this.bufferQueue = bufferQueue;
+    }
+
+    public void run(){
+        try{
+            socketServer = ServerSocketChannel.open();
+            socketServer.bind(new InetSocketAddress(this.tcpPort)) ;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        while(true){
+            BufferChannel bufferChannel = null ;
+            try {
+                bufferChannel = new BufferChannel(socketServer.accept());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            
+            if(bufferChannel != null) {
+                bufferQueue.addFirst( bufferChannel );
+            }
+            
+        }
+        
+    }
+    
 }
