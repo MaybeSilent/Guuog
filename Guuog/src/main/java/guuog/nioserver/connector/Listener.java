@@ -7,41 +7,47 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 
-import guuog.nioserver.buffer.BufferChannel;
 
 public class Listener implements Runnable {
 
     private ServerSocketChannel socketServer;
     private int tcpPort;
-    private LinkedList<BufferChannel> bufferQueue;
+    private LinkedList<Channel> bufferQueue;
 
-    public void Listener(int tcpPort , LinkedList bufferQueue){
+    public Listener(int tcpPort, LinkedList<Channel> bufferQueue) {
         this.tcpPort = tcpPort;
         this.bufferQueue = bufferQueue;
     }
 
-    public void run(){
-        try{
+    public void run() {
+        try {
             socketServer = ServerSocketChannel.open();
-            socketServer.bind(new InetSocketAddress(this.tcpPort)) ;
+            socketServer.bind(new InetSocketAddress(this.tcpPort));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        while(true){
-            BufferChannel bufferChannel = null ;
+        while (true) {
+            Channel bufferChannel = null;
             try {
-                bufferChannel = new BufferChannel(socketServer.accept());
+                SocketChannel channel = socketServer.accept();
+                bufferChannel = new Channel(channel);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
-            if(bufferChannel != null) {
-                bufferQueue.addFirst( bufferChannel );
+
+            if (bufferChannel != null) {
+                try {
+                    bufferChannel.configureBlock(false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                bufferQueue.addFirst(bufferChannel);
             }
-            
+
         }
-        
+
     }
-    
+
 }
