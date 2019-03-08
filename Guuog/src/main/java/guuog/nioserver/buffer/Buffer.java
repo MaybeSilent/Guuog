@@ -1,22 +1,29 @@
 package guuog.nioserver.buffer;
 
+import java.nio.ByteBuffer;
+
 public class Buffer {
     private byte[] pool;
     private int offset; // 缓冲区相对于数组的起点距离
     private int length; // 缓冲区长度
-    private BufferPool bufferpool ;
+    private BufferPool bufferpool;
 
-    public Buffer(byte[] start, int offset, int length , BufferPool bufferPool) {
+    public Buffer(byte[] start, int offset, int length, BufferPool bufferPool) {
         this.pool = start;
         this.offset = offset;
         this.length = length;
         this.bufferpool = bufferPool;
     }
 
+    public ByteBuffer toByte() {
+        return ByteBuffer.wrap(pool, offset, length);
+    }
+
     // 方便buffer直接调用 ， 而不用调用bufferpool来扩展buffer
-    public Buffer expand(){
+    public Buffer expand() {
         return bufferpool.expandBuffer(this);
     }
+
     /**
      * 为buffer自动生成相应的getset方法
      */

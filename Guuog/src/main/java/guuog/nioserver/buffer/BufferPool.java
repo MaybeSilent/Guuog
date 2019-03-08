@@ -21,7 +21,7 @@ public class BufferPool {
         int addr = smallAddrArray.take();
         if (addr == -1)
             return null;
-        return new Buffer(smallBufferPool, addr, KB4 , this);
+        return new Buffer(smallBufferPool, addr, KB4, this);
     }
 
     /**
@@ -42,7 +42,7 @@ public class BufferPool {
 
     private void setBuffer(int addr, Buffer buffer) {
         // 将原本的内容复制到对应的位置
-        System.arraycopy(smallBufferPool, buffer.getOffset(), bigBufferPool , addr, KB4);
+        System.arraycopy(smallBufferPool, buffer.getOffset(), bigBufferPool, addr, KB4);
         // 回收之前的小内存区域
         smallAddrArray.put(buffer.getOffset());
         buffer.setLength(KB64);

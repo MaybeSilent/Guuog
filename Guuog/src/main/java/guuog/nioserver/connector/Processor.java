@@ -4,21 +4,24 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.charset.Charset;
 import java.util.Iterator;
-import java.util.LinkedList;
+
+import guuog.nioserver.buffer.Buffer;
+import guuog.nioserver.buffer.BufferPool;
+import guuog.nioserver.proxy.Taskproxy;
 
 public class Processor implements Runnable {
-    private LinkedList<Channel> bufferQueue;
     private Selector readSelector;
-    private Selector writeSelector;
-    private ByteBuffer readBuffer = ByteBuffer.allocate(4 * 1024);
-    private ByteBuffer writeBuffer = ByteBuffer.allocate(64 * 1024);
+    private BufferPool bufferPool;
 
-    public Processor(LinkedList<Channel> bufferQueue) throws IOException {
-        this.bufferQueue = bufferQueue;
+    private Taskproxy writeproxy;
+    private Taskproxy readproxy;
+
+    public Processor(Taskproxy readproxy , Taskproxy writeproxy ) throws IOException {
         this.readSelector = Selector.open();
-        this.writeSelector = Selector.open();
+        this.bufferPool = new BufferPool();
+        this.readproxy = readproxy;
+        this.writeproxy = writeproxy;
     }
 
     @Override
@@ -34,16 +37,16 @@ public class Processor implements Runnable {
     }
 
     private void registerRead() throws IOException {
-        while (!bufferQueue.isEmpty()) {
+        while (!readproxy.isEmpty()) {
             System.out.println("register a request");
-            Channel next = bufferQueue.removeFirst();
+            Channel next = readproxy.get();
             next.registerRead(readSelector);
             System.out.println("register finished");
         }
     }
 
     private void waitForReadAndWrite() throws IOException {
-        int readyNum = readSelector.selectNow();
+        int readyNum = readSelector.select(2000);
         if (readyNum > 0) {
             Iterator<SelectionKey> iter = readSelector.selectedKeys().iterator();
 
@@ -53,10 +56,19 @@ public class Processor implements Runnable {
                 if (key.isReadable()) {
                     System.out.println("key is readable");
                     Channel channel = (Channel) key.attachment();
+                    
+                    Buffer buffer = this.bufferPool.createBuffer();
+                    ByteBuffer readBuffer = buffer.toByte();
                     channel.read(readBuffer);
-                    readBuffer.flip();
-                    String receivedString = Charset.forName("UTF-8").newDecoder().decode(readBuffer).toString();
-                    System.out.println(receivedString);
+                    channel.setBuffer(buffer);
+
+                    writeproxy.add(channel);
+
+                    if(channel.isFin()){
+                        System.out.println("finished");
+                        key.cancel();
+                    }
+                        
                 }
 
             }

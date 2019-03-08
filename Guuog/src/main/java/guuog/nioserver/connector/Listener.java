@@ -5,18 +5,18 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.LinkedList;
 
+import guuog.nioserver.proxy.Taskproxy;
 
 public class Listener implements Runnable {
 
     private ServerSocketChannel socketServer;
     private int tcpPort;
-    private LinkedList<Channel> bufferQueue;
+    private Taskproxy proxyOfmess;
 
-    public Listener(int tcpPort, LinkedList<Channel> bufferQueue) {
+    public Listener(int tcpPort, Taskproxy proxy) {
         this.tcpPort = tcpPort;
-        this.bufferQueue = bufferQueue;
+        this.proxyOfmess = proxy;
     }
 
     public void run() {
@@ -43,7 +43,7 @@ public class Listener implements Runnable {
                     e.printStackTrace();
                 }
 
-                bufferQueue.addFirst(bufferChannel);
+                this.proxyOfmess.add(bufferChannel);;
             }
 
         }

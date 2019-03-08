@@ -6,10 +6,13 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
+import guuog.nioserver.buffer.Buffer;
+
 public class Channel {
     // 自定义channel ， 用于封装nio的读写功能
     private SocketChannel socketChannel;
     private boolean readfinished;
+    private Buffer buffer;
 
     public Channel(SocketChannel channel) {
         this.socketChannel = channel;
@@ -35,6 +38,14 @@ public class Channel {
 
     public void write() throws IOException {
 
+    }
+
+    public Buffer getBuffer(){
+        return this.buffer;
+    }
+
+    public void setBuffer(Buffer buffer){
+        this.buffer = buffer;
     }
 
     public boolean isFin() {
