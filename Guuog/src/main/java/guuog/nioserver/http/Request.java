@@ -18,13 +18,31 @@ import javax.servlet.http.HttpSession;
 public class Request implements HttpServletRequest {
     private RequestStream reqStream;
     private HashMap<String, String> headerContent = new HashMap<>();
+    private String kind = null;
+    private String uri = null;
+    private String httpKind = null;
 
-    public void parse(){
+    public void parse() {
         String line = null;
         System.out.println("begin parsing .........");
-        while((line = reqStream.readLine()) != null){
-            System.out.println(line);
+        int count = 0;
+        while ((line = reqStream.readLine()) != null) {
+            // System.out.println(line);
+            if (count == 1) {
+                String[] strs = line.split(" ");
+                assert (strs.length == 3);
+                kind = strs[0];
+                uri = strs[1];
+                httpKind = strs[2];
+            } else {
+                String[] strs = line.split(": ");
+                assert (strs.length == 2);
+                headerContent.put(strs[0], strs[1]);
+            }
+
         }
+        System.out.println("kind " + kind + " uri " + uri + " httpKind " + httpKind );
+
         System.out.println("end parsing ...........");
     }
 
