@@ -7,9 +7,7 @@ import java.util.HashSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -19,8 +17,8 @@ public class ReadFile {
      * System.getProperty("user.dir")返回当前工作目录 在作者本机电脑上显示为 e:\workfile\develop\Guuog
      * resourcePath表示当前目录
      */
-    public static String resourcePath = System.getProperty("user.dir") + File.separator + "guuog" + File.separator
-            + "WebRoot";
+    public static String resourcePath = System.getProperty("user.dir") + File.separator + "Guuog" + File.separator
+            + "webroot";
 
     public static String configFile = resourcePath + File.separator + "WEB-INF" + File.separator + "web.xml";
 
