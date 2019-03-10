@@ -10,7 +10,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import guuog.nioserver.connector.Channel;
 
 public class Response implements HttpServletResponse {
 
@@ -21,10 +20,13 @@ public class Response implements HttpServletResponse {
     public static final String CONTENTLENGTH = "Content-Length";
     public static final String CONTENTTYPE = "Content-Type";
 
-    private Channel channel;
     private HashMap<String, String> header = new HashMap<>();
     private String reskind ;
+    private ResponseWriter writer;
 
+    public Response(){
+        writer = new ResponseWriter();
+    }
 
     public void setOK(){
         reskind = HTTPOK;
@@ -34,6 +36,14 @@ public class Response implements HttpServletResponse {
     }
     public void set500(){
         reskind = SERVERERROR;
+    }
+
+    public boolean hasByte(){
+        return writer.length() != 0 ;
+    }
+
+    public byte[] getContentByte(){
+        return writer.content();
     }
 
     public byte[] getbyte(){
@@ -46,6 +56,11 @@ public class Response implements HttpServletResponse {
         }
         strb.append(NEWLINE);
         return strb.toString().getBytes();
+    }
+
+    @Override
+    public PrintWriter getWriter() throws IOException {
+        return new PrintWriter(writer);
     }
 
     @Override
@@ -162,11 +177,6 @@ public class Response implements HttpServletResponse {
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        return null;
-    }
-
-    @Override
-    public PrintWriter getWriter() throws IOException {
         return null;
     }
 

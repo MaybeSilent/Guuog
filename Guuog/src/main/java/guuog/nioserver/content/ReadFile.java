@@ -3,6 +3,7 @@ package guuog.nioserver.content;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -105,11 +106,19 @@ public class ReadFile {
     public static void main(String[] args) {
         ReadFile read = new ReadFile();
         try {
-            read.getxmlinfo();
+            HashMap<String,String> maps  = read.getxmlinfo();
             HashSet<File> sets = read.getFiles();
             for(File file : sets){
                 System.out.println(file.getName());
             }
+
+            Iterator<String> iter = maps.keySet().iterator();
+            while(iter.hasNext()){
+                String key = iter.next();
+                System.out.println(key);
+                System.out.println(maps.get(key));
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

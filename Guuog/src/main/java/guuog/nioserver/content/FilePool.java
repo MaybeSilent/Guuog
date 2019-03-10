@@ -1,7 +1,6 @@
 package guuog.nioserver.content;
 
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -31,6 +30,14 @@ public class FilePool {
 
     public byte[] getFileByte(String name){
         return files.get(name);
+    }
+
+    public boolean containsClass(String name){
+        return urimap.containsKey(name);
+    }
+
+    public String getClassName(String name){
+        return urimap.get(name);
     }
 
     public static void main(String[] args) {

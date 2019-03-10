@@ -25,7 +25,9 @@ public class Request implements HttpServletRequest {
     private String httpKind = null;
     private static String regex=".*[a-zA-Z]+.*";
 
-
+    /**
+     * 避免处理的请求中没有相应的
+     */
     public boolean judgeContainsStr(String cardNum) {
     	
 	    Matcher m=Pattern.compile(regex).matcher(cardNum);

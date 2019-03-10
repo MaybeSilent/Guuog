@@ -27,7 +27,7 @@ public class FileTobyte {
         return maps;
     }
 
-    private byte[] transferFileToBytes(File file) throws IOException {
+    public static byte[] transferFileToBytes(File file) throws IOException {
         long length = 0;
         if (file.exists() && file.isFile()) {
             length = file.length();
