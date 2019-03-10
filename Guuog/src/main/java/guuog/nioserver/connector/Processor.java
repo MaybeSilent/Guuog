@@ -63,7 +63,7 @@ public class Processor implements Runnable {
                     channel.setBuffer(buffer);
 
                     writeproxy.add(channel);
-
+                    
                     if(channel.isFin()){
                         System.out.println("finished");
                         key.cancel();
@@ -71,9 +71,11 @@ public class Processor implements Runnable {
                         
                 }
 
+                iter.remove();
+
             }
 
-            iter.remove();
+            
         }
 
     }

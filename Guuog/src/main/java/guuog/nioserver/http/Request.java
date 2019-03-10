@@ -8,6 +8,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
@@ -21,6 +23,14 @@ public class Request implements HttpServletRequest {
     private String kind = null;
     private String uri = null;
     private String httpKind = null;
+    private static String regex=".*[a-zA-Z]+.*";
+
+
+    public boolean judgeContainsStr(String cardNum) {
+    	
+	    Matcher m=Pattern.compile(regex).matcher(cardNum);
+	    return m.matches();
+    }
 
     public void parse() {
         String line = null;
@@ -28,22 +38,32 @@ public class Request implements HttpServletRequest {
         int count = 0;
         while ((line = reqStream.readLine()) != null) {
             // System.out.println(line);
-            if (count == 1) {
+            if (count == 0 && judgeContainsStr(line)) {
                 String[] strs = line.split(" ");
                 assert (strs.length == 3);
                 kind = strs[0];
                 uri = strs[1];
                 httpKind = strs[2];
-            } else {
+            } else if(judgeContainsStr(line)) {
+                System.out.println(line);
                 String[] strs = line.split(": ");
                 assert (strs.length == 2);
                 headerContent.put(strs[0], strs[1]);
             }
-
+            count ++;
         }
         System.out.println("kind " + kind + " uri " + uri + " httpKind " + httpKind );
 
         System.out.println("end parsing ...........");
+    }
+
+    public String getUri(){
+        return uri;
+    }
+
+    @Override
+    public String getMethod() {
+        return kind;
     }
 
     public Request(RequestStream stream) {
@@ -88,11 +108,6 @@ public class Request implements HttpServletRequest {
     @Override
     public int getIntHeader(String name) {
         return 0;
-    }
-
-    @Override
-    public String getMethod() {
-        return null;
     }
 
     @Override

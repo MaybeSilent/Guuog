@@ -25,7 +25,7 @@ public class ReadFile {
     /**
      * @return HashSet<File>包含了resource文件夹下所有文件，不包括相应的目录，所有静态文件目录位置默认在此
      */
-    private HashSet<File> getFiles() throws Exception {
+    public HashSet<File> getFiles() throws Exception {
         HashSet<File> webContent = new HashSet<>();
         File file = new File(resourcePath);
         if (!file.exists() || file.isFile()) {
@@ -49,7 +49,7 @@ public class ReadFile {
      * 
      * @return
      */
-    private HashMap<String, String> getxmlinfo() throws Exception {
+    public HashMap<String, String> getxmlinfo() throws Exception {
         HashMap<String, String> classmap = new HashMap<>();
         HashMap<String, String> urimap = new HashMap<>();
 

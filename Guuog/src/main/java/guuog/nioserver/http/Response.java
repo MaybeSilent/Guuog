@@ -2,16 +2,61 @@ package guuog.nioserver.http;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import guuog.nioserver.connector.Channel;
+
 public class Response implements HttpServletResponse {
 
+    public static final String HTTPOK = "HTTP/1.1 200 OK";
+    public static final String NEWLINE = "\r\n";
+    public static final String NOTFOUND = "HTTP/1.1 404 Not Find";
+    public static final String SERVERERROR = "HTTP/1.1 500 Internal Server Error";
+    public static final String CONTENTLENGTH = "Content-Length";
+    public static final String CONTENTTYPE = "Content-Type";
 
-    
+    private Channel channel;
+    private HashMap<String, String> header = new HashMap<>();
+    private String reskind ;
+
+
+    public void setOK(){
+        reskind = HTTPOK;
+    }
+    public void set404(){
+        reskind = NOTFOUND;
+    }
+    public void set500(){
+        reskind = SERVERERROR;
+    }
+
+    public byte[] getbyte(){
+        StringBuilder strb = new StringBuilder(256);
+        strb.append(reskind).append(NEWLINE);
+        Iterator<String> iter = header.keySet().iterator();
+        while(iter.hasNext()){
+            String key = iter.next();
+            strb.append(key).append(": ").append(header.get(key)).append(NEWLINE);
+        }
+        strb.append(NEWLINE);
+        return strb.toString().getBytes();
+    }
+
+    @Override
+    public void addHeader(String name, String value) {
+        header.put(name, value);
+    }
+
+    @Override
+    public void addIntHeader(String name, int value) {
+        
+    }
     /**
      * 实现httpServletResponse接口的方法，自动生成相应的getter与setter方法
      */
@@ -22,16 +67,6 @@ public class Response implements HttpServletResponse {
 
     @Override
     public void addDateHeader(String name, long date) {
-
-    }
-
-    @Override
-    public void addHeader(String name, String value) {
-
-    }
-
-    @Override
-    public void addIntHeader(String name, int value) {
 
     }
 
