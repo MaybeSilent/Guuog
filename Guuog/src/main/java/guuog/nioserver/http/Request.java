@@ -1,5 +1,7 @@
 package guuog.nioserver.http;
 
+import guuog.nioserver.logging.ReadLogger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -36,27 +38,24 @@ public class Request implements HttpServletRequest {
 
     public void parse() {
         String line = null;
-        System.out.println("begin parsing .........");
+        ReadLogger.getLogger().info("Begin Parsing A Request");
         int count = 0;
         while ((line = reqStream.readLine()) != null) {
-            // System.out.println(line);
             if (count == 0 && judgeContainsStr(line)) {
                 String[] strs = line.split(" ");
                 assert (strs.length == 3);
                 kind = strs[0];
                 uri = strs[1];
                 httpKind = strs[2];
+                ReadLogger.getLogger().info("Kind: " + kind + " Uri: " + uri + " HttpKind: " + httpKind);
             } else if(judgeContainsStr(line)) {
-                System.out.println(line);
                 String[] strs = line.split(": ");
                 assert (strs.length == 2);
                 headerContent.put(strs[0], strs[1]);
+                ReadLogger.getLogger().info(strs[0] + " : " + strs[1]);
             }
             count ++;
         }
-        System.out.println("kind " + kind + " uri " + uri + " httpKind " + httpKind );
-
-        System.out.println("end parsing ...........");
     }
 
     public String getUri(){

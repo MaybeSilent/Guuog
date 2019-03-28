@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import guuog.nioserver.content.FileTobyte;
 import guuog.nioserver.content.ReadFile;
+import guuog.nioserver.logging.WriteLogger;
 
 public class Servletclassloader extends ClassLoader {
     private String path = ReadFile.resourcePath + File.separator + "WEB-INF" + File.separator + "classes"
@@ -22,10 +23,10 @@ public class Servletclassloader extends ClassLoader {
     
     @Override
     public Class<?> findClass(String name) throws ClassNotFoundException {
-        String filename = name.replace('.', '\\');
+        String filename = name.replace(".", File.separator);
         File file = new File(path + filename + fileType);
         byte[] classbyte = null;
-        System.out.println(path + name + fileType);
+        WriteLogger.getLogger().info(path + name + fileType + " Is To Be Sended");
         if (file.exists() && file.isFile()) {
             try {
                 classbyte = FileTobyte.transferFileToBytes(file);
@@ -58,7 +59,5 @@ public class Servletclassloader extends ClassLoader {
             e.printStackTrace();
         }
 
-        
-        
     }
 }

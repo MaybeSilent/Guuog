@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import guuog.nioserver.buffer.BufferPool;
 import guuog.nioserver.proxy.Taskproxy;
 
 public class Listener implements Runnable {
@@ -13,10 +14,12 @@ public class Listener implements Runnable {
     private ServerSocketChannel socketServer;
     private int tcpPort;
     private Taskproxy proxyOfmess;
+    private BufferPool bufferPool;
 
     public Listener(int tcpPort, Taskproxy proxy) {
         this.tcpPort = tcpPort;
         this.proxyOfmess = proxy;
+        this.bufferPool = new BufferPool();
     }
 
     public void run() {
@@ -31,7 +34,7 @@ public class Listener implements Runnable {
             Channel bufferChannel = null;
             try {
                 SocketChannel channel = socketServer.accept();
-                bufferChannel = new Channel(channel);
+                bufferChannel = new Channel(channel,bufferPool.createBuffer());
             } catch (IOException e) {
                 e.printStackTrace();
             }

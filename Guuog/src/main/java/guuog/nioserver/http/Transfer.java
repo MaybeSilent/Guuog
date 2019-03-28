@@ -10,6 +10,8 @@ import guuog.nioserver.buffer.Buffer;
 import guuog.nioserver.classloaders.Servletclassloader;
 import guuog.nioserver.connector.Channel;
 import guuog.nioserver.content.FilePool;
+import guuog.nioserver.logging.ReadLogger;
+import guuog.nioserver.logging.WriteLogger;
 import guuog.nioserver.proxy.Taskproxy;
 
 public class Transfer implements Runnable {
@@ -31,70 +33,76 @@ public class Transfer implements Runnable {
     public void run() {
         while (true) {
 
-            while (!taskproxy.isEmpty()) {
-                Channel channel = taskproxy.get();
+            Channel channel = taskproxy.get();
 
-                Buffer buffer = channel.getBuffer();
+            Buffer buffer = channel.getBuffer();
 
-                RequestStream stream = new RequestStream(buffer.getPool(), buffer.getOffset(), buffer.getLength());
-                Request request = new Request(stream);
-                request.parse();
-                // 对请求进行解析
-                byte[] body = null;
-                byte[] head = null;
-                if (request.getMethod() != null && request.getUri() != null) {
+            RequestStream stream = new RequestStream(buffer.getPool(), buffer.getOffset(), buffer.getLength());
+            Request request = new Request(stream);
+            request.parse();
+            // 对请求进行解析
+            ReadLogger.getLogger().info("FINISH PARSE A REQUEST");
+            byte[] body = null;
+            byte[] head = null;
+            if (request.getMethod() != null && request.getUri() != null) {
 
-                    Response respon = new Response();
-                    String uri = request.getUri();
-                    if (request.getMethod().equals("GET") && filePool.containsFile(uri)) {
+                Response respon = new Response();
+                String uri = request.getUri();
+                if (request.getMethod().equals("GET") && filePool.containsFile(uri)) {
+                    respon.setOK();
+                    body = filePool.getFileByte(uri);
+                    respon.addHeader(Response.CONTENTLENGTH, String.valueOf(body.length));
+                    respon.addHeader(Response.CONTENTTYPE, "text/html");
+                    head = respon.getbyte();
+                } else if (request.getMethod().equals("GET") && filePool.containsClass(uri)) {
+                    try {
+                        /**
+                         * 加载相应的servlet
+                         */
+                        Class<?> serClass = servletloader.loadClass(filePool.getClassName(uri));
+                        HttpServlet servlet = (HttpServlet) serClass.newInstance();
+                        //调用相应的servlet请求
+                        servlet.service((ServletRequest) request, (ServletResponse) respon);
+
                         respon.setOK();
-                        body = filePool.getFileByte(uri);
+                        respon.addHeader(Response.CONTENTTYPE, "text/html");
+                        body = respon.getContentByte();
+
                         respon.addHeader(Response.CONTENTLENGTH, String.valueOf(body.length));
-                        respon.addHeader(Response.CONTENTTYPE, "text/html");
                         head = respon.getbyte();
-                    } else if (request.getMethod().equals("GET") && filePool.containsClass(uri)) {
-                        try {
-                            /**
-                             * 加载相应的servlet
-                             */
-                            Class<?> serClass = servletloader.loadClass(filePool.getClassName(uri));
-                            HttpServlet servlet = (HttpServlet) serClass.newInstance();
-                            //调用相应的servlet请求
-                            servlet.service((ServletRequest) request, (ServletResponse) respon);
-                            
-                            respon.setOK();
-                            respon.addHeader(Response.CONTENTTYPE, "text/html");
-                            body = respon.getContentByte();
-                            
-                            respon.addHeader(Response.CONTENTLENGTH, String.valueOf(body.length));
-                            head = respon.getbyte();
 
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            respon.set500();
-                            respon.addHeader(Response.CONTENTTYPE, "text/html");
-                            respon.addHeader(Response.CONTENTLENGTH, String.valueOf(serverErro.length()));
-                            body = notfound.getBytes();
-                            head = respon.getbyte();
-                        }
-
-                    } else {
-                        respon.set404();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        respon.set500();
                         respon.addHeader(Response.CONTENTTYPE, "text/html");
-                        respon.addHeader(Response.CONTENTLENGTH, String.valueOf(notfound.length()));
+                        respon.addHeader(Response.CONTENTLENGTH, String.valueOf(serverErro.length()));
                         body = notfound.getBytes();
                         head = respon.getbyte();
                     }
 
+                } else {
+                    respon.set404();
+                    respon.addHeader(Response.CONTENTTYPE, "text/html");
+                    respon.addHeader(Response.CONTENTLENGTH, String.valueOf(notfound.length()));
+                    body = notfound.getBytes();
+                    head = respon.getbyte();
                 }
+
                 try {
+                    WriteLogger.getLogger().info("Writing Message Into Response");
                     channel.write(ByteBuffer.wrap(head));
                     channel.write(ByteBuffer.wrap(body));
+                    WriteLogger.getLogger().info("Writing Finished");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                channel.close();
 
+            } else {
+                WriteLogger.getLogger().info("A CAHNNEL IS CANCELED");
+                channel.close();
             }
+
         }
     }
 

@@ -1,5 +1,7 @@
 package guuog.nioserver.buffer;
 
+import guuog.nioserver.logging.WriteLogger;
+
 public class BufferPool {
     private static int KB4 = 1024 * 4;
     private static int KB64 = 1024 * 64;
@@ -14,6 +16,18 @@ public class BufferPool {
         for (int i = 0, j = 0, k = 0; k < 1024; i += KB4, j += KB64, k++) {
             smallAddrArray.put(i);
             bigAddrArray.put(j);
+        }
+    }
+
+    public void closeBuffer(int length, int start) {
+        if (length == KB4) {
+            smallAddrArray.put(start);
+            WriteLogger.getLogger().info(start + " of samllBuffer Is Recycled");
+        } else if (length == KB64) {
+            bigAddrArray.put(start);
+            WriteLogger.getLogger().info(start + " of BigBuffer Is Recycled");
+        } else {
+            WriteLogger.getLogger().info("Buffer Is Not Recycled");
         }
     }
 

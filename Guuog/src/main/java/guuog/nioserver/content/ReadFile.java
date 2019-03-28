@@ -18,7 +18,7 @@ public class ReadFile {
      * System.getProperty("user.dir")返回当前工作目录 在作者本机电脑上显示为 e:\workfile\develop\Guuog
      * resourcePath表示当前目录
      */
-    public static String resourcePath = System.getProperty("user.dir") + File.separator + "Guuog" + File.separator
+    public static String resourcePath = System.getProperty("user.dir") + File.separator
             + "webroot";
 
     public static String configFile = resourcePath + File.separator + "WEB-INF" + File.separator + "web.xml";
@@ -54,7 +54,7 @@ public class ReadFile {
         HashMap<String, String> classmap = new HashMap<>();
         HashMap<String, String> urimap = new HashMap<>();
 
-        System.out.println(configFile);
+        //System.out.println(configFile);
         File file = new File(configFile);
         if (file.exists()) {
             // 打开web.xml , 打开方式为整体进行打开

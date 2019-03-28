@@ -11,12 +11,22 @@ import guuog.nioserver.buffer.Buffer;
 public class Channel {
     // 自定义channel ， 用于封装nio的读写功能
     private SocketChannel socketChannel;
-    private boolean readfinished;
-    private boolean writefinished;
+    private Selector selector;
+
+    private boolean readfinished; //读操作结束的标志位
+    private boolean writefinished; //写操作结束的标志位
+
+    private ByteBuffer bytebuffer;
     private Buffer buffer;
 
-    public Channel(SocketChannel channel) {
+    public Channel(SocketChannel channel, Buffer buffer) {
         this.socketChannel = channel;
+        this.buffer = buffer;
+        this.bytebuffer = ByteBuffer.wrap(buffer.getPool(),buffer.getOffset(),buffer.getLength());
+    }
+
+    public int read() throws IOException {
+        return read(this.bytebuffer);
     }
 
     public int read(ByteBuffer buffer) throws IOException {
@@ -32,7 +42,6 @@ public class Channel {
         if (byteread == -1) {
             readfinished = true;
         }
-
         return totalbyte;
 
     }
@@ -49,12 +58,8 @@ public class Channel {
 
     }
 
-    public Buffer getBuffer() {
-        return this.buffer;
-    }
-
-    public void setBuffer(Buffer buffer) {
-        this.buffer = buffer;
+    public boolean containsBuffer() {
+        return this.buffer != null && this.bytebuffer != null;
     }
 
     public boolean isFin() {
@@ -65,7 +70,16 @@ public class Channel {
         return writefinished;
     }
 
+    public Buffer getBuffer() {
+        return buffer;
+    }
+
+    public void setBuffer(Buffer buffer) {
+        this.buffer = buffer;
+    }
+
     public void registerRead(Selector selector) throws IOException {
+        this.selector = selector;
         socketChannel.register(selector, SelectionKey.OP_READ, this);
     }
 
@@ -75,6 +89,17 @@ public class Channel {
 
     public void configureBlock(boolean flag) throws IOException {
         this.socketChannel.configureBlocking(flag);
+    }
+
+
+    public  void close() {
+        this.bytebuffer = null;
+        buffer.close();
+        try {
+            socketChannel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.charset.Charset;
 import java.util.Iterator;
+import java.util.Set;
 
 import guuog.nioserver.buffer.Buffer;
 import guuog.nioserver.buffer.BufferPool;
+import guuog.nioserver.logging.ReadLogger;
 import guuog.nioserver.proxy.Taskproxy;
 
 public class Processor implements Runnable {
@@ -38,42 +41,42 @@ public class Processor implements Runnable {
 
     private void registerRead() throws IOException {
         while (!readproxy.isEmpty()) {
-            System.out.println("register a request");
+            ReadLogger.getLogger().info("Register A Request");
             Channel next = readproxy.get();
             next.registerRead(readSelector);
-            System.out.println("register finished");
+
         }
     }
 
     private void waitForReadAndWrite() throws IOException {
         int readyNum = readSelector.select(2000);
+
         if (readyNum > 0) {
-            Iterator<SelectionKey> iter = readSelector.selectedKeys().iterator();
+            Set<SelectionKey> selectedKeys = this.readSelector.selectedKeys();
+            Iterator<SelectionKey> iter = selectedKeys.iterator();
 
             while (iter.hasNext()) {
-                System.out.println("begin read or write");
+                ReadLogger.getLogger().info("Begin To Read From Request");
                 SelectionKey key = iter.next();
                 if (key.isReadable()) {
-                    System.out.println("key is readable");
                     Channel channel = (Channel) key.attachment();
-                    
-                    Buffer buffer = this.bufferPool.createBuffer();
-                    ByteBuffer readBuffer = buffer.toByte();
-                    channel.read(readBuffer);
-                    channel.setBuffer(buffer);
 
+                    channel.read();
                     writeproxy.add(channel);
-                    
-                    if(channel.isFin()){
-                        System.out.println("finished");
+
+                    if(channel.isFin()) {
+                        ReadLogger.getLogger().info("Request Finished");
                         key.cancel();
+                        key.channel().close();
+                        key.attach(null);
                     }
-                        
                 }
 
                 iter.remove();
 
             }
+
+            selectedKeys.clear();
 
             
         }

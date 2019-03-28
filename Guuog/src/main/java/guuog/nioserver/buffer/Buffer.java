@@ -19,6 +19,11 @@ public class Buffer {
         return ByteBuffer.wrap(pool, offset, length);
     }
 
+    // 对buffer的空间进行回收
+    public void close() {
+        bufferpool.closeBuffer(length, offset);
+    }
+
     // 方便buffer直接调用 ， 而不用调用bufferpool来扩展buffer
     public Buffer expand() {
         return bufferpool.expandBuffer(this);
