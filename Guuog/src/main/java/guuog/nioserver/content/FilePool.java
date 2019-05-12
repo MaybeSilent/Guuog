@@ -19,7 +19,7 @@ public class FilePool {
             e.printStackTrace();
         }
 
-        FileTobyte fbyte = new FileTobyte();
+        FileToByte fbyte = new FileToByte();
         files = fbyte.processSets(sets);
 
     }

@@ -3,7 +3,7 @@ package guuog.nioserver.classloaders;
 import java.io.File;
 import java.lang.reflect.Method;
 
-import guuog.nioserver.content.FileTobyte;
+import guuog.nioserver.content.FileToByte;
 import guuog.nioserver.content.ReadFile;
 import guuog.nioserver.logging.WriteLogger;
 
@@ -29,15 +29,11 @@ public class Servletclassloader extends ClassLoader {
         WriteLogger.getLogger().info(path + name + fileType + " Is To Be Sended");
         if (file.exists() && file.isFile()) {
             try {
-                classbyte = FileTobyte.transferFileToBytes(file);
+                classbyte = FileToByte.transferFileToBytes(file);
             } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (classbyte != null) {
-                return defineClass(name, classbyte, 0, classbyte.length);
-            } else {
                 throw new ClassNotFoundException("读取文件出错");
             }
+            return defineClass(name, classbyte, 0, classbyte.length);
         } else {
             throw new ClassNotFoundException("类文件未找到");
         }

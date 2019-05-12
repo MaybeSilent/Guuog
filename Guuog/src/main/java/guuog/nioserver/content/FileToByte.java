@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-public class FileTobyte {
+public class FileToByte {
 
     public HashMap<String, byte[]> processSets(HashSet<File> fileSets) {
         Iterator<File> iter = fileSets.iterator();
